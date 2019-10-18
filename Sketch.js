@@ -1,36 +1,98 @@
+// Delete all comments before using
+// v 0.2.0
+
 // Setting up UART for Wi-Fi
 PrimarySerial.setup(115200);
 
 // Setting up I2C for RTC
-PrimaryI2C.setup({sda: SDA, scl: SCL, bitrate: 100000});
+PrimaryI2C.setup({ sda: SDA, scl: SCL, bitrate: 100000 });
 
 // Setting up I2C1 for barometer
-I2C1.setup({sda: SDA, scl: SCL, bitrate: 400000});
+I2C1.setup({ sda: SDA, scl: SCL, bitrate: 400000 });
 
-// Wi-Fi network credentials
+// Set up the Wi-Fi connection
 var SSID = 'YOUR_SSID';
 var PSWD = 'YOUR_PSWD';
 
 // Sensors initialization
-var barometer = require('@amperka/barometer').connect({i2c: I2C1});
+var wifi = require('@amperka/wifi');
+var barometer = require('@amperka/barometer').connect({ i2c: I2C1 });
 var thermometer = require('@amperka/thermometer').connect(A1);
 var rtc = require('@amperka/rtc').connect(PrimaryI2C);
 var http = require('http');
 barometer.init();
 
 // Connetction to Wi-Fi network
-var wifi = require('@amperka/wifi').setup(PrimarySerial, function(err) {
-  wifi.connect(SSID, PSWD, function(err) {
+var setupWifi = wifi.setup(PrimarySerial, function(err){
+  setupWifi.connect(SSID, PSWD, function(err) {
     print('Connected to Wi-Fi');
 
-    // Callback
+    // Callback returning current time
     getTime();
   });
 });
 
 // Yandex API call to get UNIX TimeStamp
-var getTime = function() {
-  http.get('https://yandex.com/time/sync.json?geo=213', function(res) {
+  var getTime = function() {
+
+    // Get Moscow time
+    http.get('https://yandex.com/time/sync.json?geo=213', function(res) {
+      var response = '';
+
+      res.on('data', function(d) {
+        response += d;
+      });
+
+      res.on('close', function() {
+
+        // Yandex time data processing
+        var timeResponse = Math.floor((JSON.parse(response).time + 10800000) / 1000);
+
+        // Setting up starting time for RTC sensor
+        rtc.setTime(timeResponse);
+        print('UNIX TimeStamp: ' + timeResponse);
+        print('Follow me on Telegram channel: http://t.me/semeonboboshko');
+
+        // Callback
+        setTimeout(sendData, 60000);
+      });
+    });
+  };
+
+// Poll sensors and sending data to server API
+function sendData() {
+
+  // Poll sensors
+  // Change: City and Street
+  var sensorsData = JSON.stringify({
+    Date: rtc.getTime('iso'),
+    City: 'Your city here',
+    Street: 'Your street here',
+    Temperature: Math.round((thermometer.read('C') * 10)) / 10,
+    Pressure: Math.round((barometer.read('mmHg') * 10)) / 10
+  });
+
+  // Connect to API server
+  // Set up: host, port, path, and authorization
+  var options = {
+    host: '000.00.00.000',
+    port: '3012',
+    path: '/your/secret/path',
+    protocol: 'http:',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': sensorsData.length,
+      'Accept-encoding': 'gzip, deflate',
+
+      // Encode your login and password to Base64
+      'Authorization': 'Basic LoginAndPasswordCodedInBase64',
+      'Connection': 'keep-alive',
+      'Cache-control': 'no-cache'
+    }};
+
+  // POST-request
+  var request = http.request(options, function(res) {
     var response = '';
 
     res.on('data', function(d) {
@@ -38,32 +100,12 @@ var getTime = function() {
     });
 
     res.on('close', function() {
-
-      // Yandex time data processing
-      var timeResponse = Math.floor((JSON.parse(response).time + 10800000) / 1000);
-
-      // Setting uo starting time for RTC sensor
-      rtc.setTime(timeResponse);
-      print('UNIX TimeStamp: ' + timeResponse);
-
-      // Callback
-      printSensors(timeResponse);
     });
   });
-};
 
-// Parameters of sensors and console output
-var printSensors = function(timeResponse) {
-  var timerId = setInterval(function() {
+  // Send data to API server
+  request.end(sensorsData);
 
-    // Sensors calling and parameters
-    var printRtc = rtc.getTime('iso');
-    var printThermometer = Math.round((thermometer.read('C') * 10)) / 10 + ' °C';
-    var printBarometer = Math.round((barometer.read('mmHg') * 10)) / 10 + ' mmHg';
-
-    // Console output
-    print(printRtc + '  ' + printThermometer + '  ' + printBarometer);
-
-    // Function iteration repeat time: 1 second
-  }, 1000);
-};
+ // Endless Callback with 60s timeout
+  setTimeout(sendData, 60000);
+}
