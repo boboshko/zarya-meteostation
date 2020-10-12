@@ -1,5 +1,5 @@
 // Delete all comments before using
-// v 0.2.0
+// v 0.2.1
 
 // Setting up UART for Wi-Fi
 PrimarySerial.setup(115200);
@@ -63,13 +63,11 @@ var setupWifi = wifi.setup(PrimarySerial, function(err){
 function sendData() {
 
   // Poll sensors
-  // Change: City and Street
   var sensorsData = JSON.stringify({
-    Date: rtc.getTime('iso'),
-    City: 'Your city here',
-    Street: 'Your street here',
-    Temperature: Math.round((thermometer.read('C') * 10)) / 10,
-    Pressure: Math.round((barometer.read('mmHg') * 10)) / 10
+    station_id: 0,
+    date_count: rtc.getTime('unixtime'),
+    temperature: Math.round((thermometer.read('C') * 10)) / 10,
+    pressure: Math.round((barometer.read('mmHg') * 10)) / 10
   });
 
   // Connect to API server
@@ -77,7 +75,7 @@ function sendData() {
   var options = {
     host: '000.00.00.000',
     port: '3012',
-    path: '/your/secret/path',
+    path: '/zarya/add',
     protocol: 'http:',
     method: 'POST',
     headers: {
