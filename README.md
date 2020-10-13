@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/badge/version-0.2.1-brightgreen.svg?style=flat-square)
+![Version](https://img.shields.io/badge/version-0.2.2-brightgreen.svg?style=flat-square)
 [![Community Chat](https://img.shields.io/badge/Community-Chat-blueChat?style=flat-square&logo=telegram)](https://t.me/codeque)
 
 # Zarya Meteostation
@@ -12,15 +12,15 @@ A homebrew meteo-station based on [Iskra JS](http://wiki.amperka.ru/js:iskra_js)
 Buy and build a station from the list below. [Update its firmware](http://wiki.amperka.ru/js:ide#обновление_прошивки) with a help of [Espruino Web IDE](https://www.espruino.com/ide/).
 
 ### Components
-| Component                                                                                                                       |   Cost in rubles   |
-|:--------------------------------------------------------------------------------------------------------------------------------|:-------------------|
-| [Iskra JS](http://amperka.ru/product/iskra-js)                                                                                  | 1 490 ₽            |
-| [Slot Shield](http://amperka.ru/product/arduino-troyka-slot-shield)                                                             | 580 ₽              |
-| [Wi-Fi (ESP8266)](http://amperka.ru/product/troyka-wi-fi)                                                                       | 850 ₽              |
-| [Analog thermometer (TMP36)](http://amperka.ru/product/troyka-temperature-sensor)                                               | 310 ₽              |
-| [Real-time clock (DS1307)](http://amperka.ru/product/troyka-rtc) + [Battery (CR1225)](http://amperka.ru/product/battery-cr1225) | 470 ₽ + 90 ₽       |
-| [Barometer (LPS331AP)](http://amperka.ru/product/troyka-barometer)                                                              | 840 ₽              |
-| **Total**                                                                                                                       | **4 630 ₽**        |
+| Component                                                                                                                       | Cost in rubles |
+|:--------------------------------------------------------------------------------------------------------------------------------|:---------------|
+| [Iskra JS](http://amperka.ru/product/iskra-js)                                                                                  | 1 490 ₽        |
+| [Slot Shield](http://amperka.ru/product/arduino-troyka-slot-shield)                                                             | 580 ₽          |
+| [Wi-Fi (ESP8266)](http://amperka.ru/product/troyka-wi-fi)                                                                       | 850 ₽          |
+| [Analog thermometer (TMP36)](http://amperka.ru/product/troyka-temperature-sensor)                                               | 310 ₽          |
+| [Real-time clock (DS1307)](http://amperka.ru/product/troyka-rtc) + [Battery (CR1225)](http://amperka.ru/product/battery-cr1225) | 470 ₽ + 90 ₽   |
+| [Barometer (LPS331AP)](http://amperka.ru/product/troyka-barometer)                                                              | 840 ₽          |
+| **Total**                                                                                                                       | **4 630 ₽**    |
 
 
 ## Quick start
@@ -76,5 +76,4 @@ This table explains what the main variables from `sketch.js` actually are.
 | `port`          | API server’s port                                  |
 | `path`          | URL of an API request                              |
 | `Authorization` | Login and password to access API server (`Base64`) |
-| `City`          | Station’s home town                                |
-| `Street`        | Street address                                     |
+| `station_id`    | ID of your meteostation                            |
