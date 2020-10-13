@@ -1,5 +1,5 @@
 // Delete all comments before using
-// v 0.2.1
+// v 0.2.2
 
 // Setting up UART for Wi-Fi
 PrimarySerial.setup(115200);
