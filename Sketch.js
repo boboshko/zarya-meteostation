@@ -15,7 +15,7 @@ var SSID = 'YOUR_SSID';
 var PSWD = 'YOUR_PSWD';
 
 // Sensors initialization
-var wifi = require('@amperka/wifi');
+var wifi = require('Wifi');
 var barometer = require('@amperka/barometer').connect({ i2c: I2C1 });
 var thermometer = require('@amperka/thermometer').connect(A1);
 var rtc = require('@amperka/rtc').connect(PrimaryI2C);
@@ -23,14 +23,27 @@ var http = require('http');
 barometer.init();
 
 // Connetction to Wi-Fi network
-var setupWifi = wifi.setup(PrimarySerial, function(err){
-  setupWifi.connect(SSID, PSWD, function(err) {
-    print('Connected to Wi-Fi');
-
-    // Callback returning current time
-    getTime();
+function wifiConnect() {
+  wifi.connect(SSID, {password:PSWD}, function(err) {
+    if(err){
+      print(err);
+      setTimeout(wifiConnect, 2*60*1000);
+    }
+    else{
+      print('Connected to Wi-Fi');
+      
+      // Callback returning current time
+      getTime();
+    }
   });
+}
+
+wifi.on('disconnected', function(details){
+    print('Wifi disconnected, reason: ' + details.reason);
+    wifiConnect();
 });
+
+wifiConnect();
 
 // Yandex API call to get UNIX TimeStamp
   var getTime = function() {
